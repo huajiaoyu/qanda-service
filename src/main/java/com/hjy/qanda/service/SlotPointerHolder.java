@@ -1,0 +1,133 @@
+package com.hjy.qanda.service;
+
+import com.hjy.qanda.model.CheckNextQuestionRes;
+import com.hjy.qanda.model.Question;
+import com.hjy.qanda.utils.FileUtil;
+import com.hjy.qanda.utils.MarkdownUtils;
+import lombok.Data;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class SlotPointerHolder {
+
+    public static final Integer SLOTS_NUM = 4;
+    public static final String PTR_PATH_PREFIX = "ptr";
+    public static final String QUESTIONS_PATH = "QA1.md";
+
+    public void refresh(int slotId) {
+        // 1. 新顺序
+        List<String> cur = new ArrayList<>();
+        for (int i = 1; i <= questions.size(); i++) {
+            cur.add(String.valueOf(i));
+        }
+        Collections.shuffle(cur);
+        // 2. 重置slot
+        SlotPointer sp = new SlotPointer();
+        sp.setCurList(cur);
+        slotPointers.set(slotId, sp);
+        // 3. 清空marks
+        marks.set(slotId, new ArrayList<>());
+    }
+
+    @Data
+    static class SlotPointer {
+
+        private int cur;
+        private List<String> curList = new ArrayList<>();
+
+        public String get() {
+            return curList.get(cur);
+        }
+
+        public String getAndIncrement() {
+            if (cur >= curList.size()) {
+                return "";
+            }
+            String t = curList.get(cur);
+            cur++;
+            return t;
+        }
+
+    }
+
+    private static List<SlotPointer> slotPointers = new ArrayList<>(SLOTS_NUM);
+
+    private static List<List<String>> marks = new ArrayList<>(SLOTS_NUM);
+    private static List<Question> questions = new ArrayList<>();
+    // 初始化问题
+    static {
+//        // 模拟
+//        for (int i = 1; i <= 150; i++) {
+//            String is = String.valueOf(i);
+//            questions.put(String.valueOf(i), new Question(is, "Q" + is, "A" + is));
+//        }
+        questions = MarkdownUtils.getQuestionsFromMarkdown(FileUtil.readFileStr(QUESTIONS_PATH));
+    }
+
+    // 初始化指针
+    static {
+        for (int i = 0; i < SLOTS_NUM; i++) {
+            SlotPointer sp = new SlotPointer();
+            slotPointers.add(sp);
+            String t = FileUtil.readFileStr(PTR_PATH_PREFIX + i);
+            if (Strings.isNotBlank(t)) {
+                String[] ss = t.split("\\|");
+                sp.setCur(Integer.parseInt(ss[0]));
+                sp.setCurList(List.of(ss[1].split(",")));
+            }
+        }
+    }
+
+    // 初始化标记
+    static {
+        for (int i = 0; i < SLOTS_NUM; i++) {
+            marks.add(new ArrayList<>());
+            String t = FileUtil.readFileStr("mark" + i);
+            if(Strings.isNotBlank(t)){
+                String[] ss = t.split(",");
+                if (ss.length != 0) {
+                    marks.set(i, List.of(ss));
+                }
+            }
+        }
+    }
+
+    public Question getSlotNext(int slotId) {
+        String qId = slotPointers.get(slotId).getAndIncrement();
+        return questions.get(Integer.parseInt(qId));
+    }
+
+    public SlotPointer getSlotPointer(int slotId) {
+        return slotPointers.get(slotId);
+    }
+
+    public void mark(int slotId, String qId) {
+        marks.get(slotId).add(qId);
+    }
+
+    public CheckNextQuestionRes check(int slotId) {
+        SlotPointer sp = slotPointers.get(slotId);
+        int cur = sp.getCur();
+        // 1. 当前存在
+        if (cur < sp.curList.size()) {
+            return new CheckNextQuestionRes("有剩余问题", true);
+        }
+        // 2. 当前不存在
+        // 2.1 marks也不存在
+        List<String> mks = marks.get(slotId);
+        if (mks.isEmpty()) {
+            return new CheckNextQuestionRes("已全部完成", false);
+        }
+        // 2.2 marks存在, marks替换
+        slotPointers.get(slotId).setCur(0);
+        // mks随机化
+        Collections.shuffle(mks);
+        slotPointers.get(slotId).setCurList(mks);
+        // 清空marks
+        marks.set(slotId, new ArrayList<>());
+        return new CheckNextQuestionRes("使用标记替换", true);
+    }
+}
