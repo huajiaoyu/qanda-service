@@ -1,5 +1,6 @@
 package com.hjy.qanda;
 
+import com.hjy.qanda.controller.QuestionController;
 import com.hjy.qanda.service.FileService;
 import com.hjy.qanda.service.feign.IObjectClient;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ class QandaServiceApplicationTests {
 
     @Autowired
     private FileService fileService;
+
     @Test
     void test() {
         fileService.fetchFile("QA.md");

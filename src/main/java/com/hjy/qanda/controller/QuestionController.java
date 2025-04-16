@@ -5,8 +5,18 @@ import com.hjy.qanda.model.ProcessResp;
 import com.hjy.qanda.model.Question;
 import com.hjy.qanda.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/v1/question")
@@ -53,5 +63,24 @@ public class QuestionController {
     public ResponseEntity<?> markQuestion(@PathVariable String slotId) {
         questionService.refreshSlot(slotId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{slotId}/download/marks")
+    public ResponseEntity<Resource> downloadMarks(@PathVariable String slotId) {
+
+        String marksMd = questionService.getMarksMd(slotId);
+
+        InputStream stream = new ByteArrayInputStream(marksMd.getBytes(StandardCharsets.UTF_8));
+        InputStreamResource resource =new InputStreamResource(stream);
+
+        // 设置文件名
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(
+                ContentDisposition.attachment()
+                        .filename("marks.md")
+                        .build()
+        );
+
+        return ResponseEntity.ok().contentLength(3).headers(headers).contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
     }
 }

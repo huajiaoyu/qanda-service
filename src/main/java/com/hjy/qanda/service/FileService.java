@@ -1,6 +1,7 @@
 package com.hjy.qanda.service;
 
 import com.hjy.qanda.service.feign.IObjectClient;
+import com.hjy.qanda.utils.FileUtil;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -18,14 +19,15 @@ public class FileService {
     private IObjectClient objectClient;
 
     public String fetchFile(String fileName){
-        Response rsp = objectClient.getFile("QA.md");
-        try(InputStream is = rsp.body().asInputStream()) {
-            byte[] bytes = IOUtils.toByteArray(is);
-            return new String(bytes);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-
-        return "";
+        return FileUtil.readFileStr("test.md");
+//        Response rsp = objectClient.getFile("QA.md");
+//        try(InputStream is = rsp.body().asInputStream()) {
+//            byte[] bytes = IOUtils.toByteArray(is);
+//            return new String(bytes);
+//        } catch (IOException e) {
+//            log.error(e.getMessage());
+//        }
+//
+//        return "";
     }
 }

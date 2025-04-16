@@ -126,6 +126,14 @@ public class SlotPointerHolder {
         return slotPointers.get(slotId);
     }
 
+    public List<String> getMarks(int slotId){
+        return marks.get(slotId);
+    }
+
+    public List<Question> getQuestions(int slotId){
+        return questions;
+    }
+
     public void mark(int slotId, String qId) {
         marks.get(slotId).add(qId);
     }
