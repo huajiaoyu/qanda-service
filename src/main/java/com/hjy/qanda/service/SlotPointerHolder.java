@@ -7,6 +7,7 @@ import com.hjy.qanda.utils.FileUtil;
 import com.hjy.qanda.utils.MarkdownUtils;
 import lombok.Data;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,13 +15,16 @@ import java.util.*;
 @Service
 public class SlotPointerHolder {
 
+    @Autowired
+    private FileService fileService;
+
     public static final boolean isShuffled = false;
 
     public static final Integer SLOTS_NUM = 4;
 
     public static final String PTR_PATH_PREFIX = "ptr";
-    //    public static final String QUESTIONS_PATH = "QA1.md";
-    public static final String QUESTIONS_PATH = "test.md";
+        public static final String QUESTIONS_PATH = "QA1.md";
+//    public static final String QUESTIONS_PATH = "test.md";
 
     public void refresh(int slotId) {
         // 1. 新顺序
@@ -75,15 +79,6 @@ public class SlotPointerHolder {
 
     private static List<Question> questions = new ArrayList<>();
 
-    // 初始化问题
-    static {
-//        // 模拟
-//        for (int i = 1; i <= 150; i++) {
-//            String is = String.valueOf(i);
-//            questions.put(String.valueOf(i), new Question(is, "Q" + is, "A" + is));
-//        }
-        questions = MarkdownUtils.getQuestionsFromMarkdown(FileUtil.readFileStr(QUESTIONS_PATH));
-    }
     // 初始化指针
 
     static {
@@ -111,6 +106,10 @@ public class SlotPointerHolder {
                 }
             }
         }
+    }
+
+    public void setQuestions(String s){
+        questions = MarkdownUtils.getQuestionsFromMarkdown(s);
     }
 
     public Question getSlotNext(int slotId) {
