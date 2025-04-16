@@ -10,12 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MarkdownUtils {
 
-    public static void main(String[] args) {
-        MarkdownUtils.getQuestionsFromMarkdown(FileUtil.readFileStr("QA1.md"));
-        System.out.println(1);
-
-    }
-
     public static List<Question> getQuestionsFromMarkdown(String markdownStr) {
         AtomicInteger i = new AtomicInteger(1);
         return parseMarkdown(markdownStr).stream().map(e -> new Question(String.valueOf(i.getAndIncrement()), e.get("question"), e.get("answer"))).toList();

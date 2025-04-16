@@ -1,6 +1,7 @@
 package com.hjy.qanda.service;
 
 import com.hjy.qanda.model.CheckNextQuestionRes;
+import com.hjy.qanda.model.ProcessResp;
 import com.hjy.qanda.model.Question;
 import com.hjy.qanda.utils.FileUtil;
 import com.hjy.qanda.utils.MarkdownUtils;
@@ -13,9 +14,13 @@ import java.util.*;
 @Service
 public class SlotPointerHolder {
 
+    public static final boolean isShuffled = false;
+
     public static final Integer SLOTS_NUM = 4;
+
     public static final String PTR_PATH_PREFIX = "ptr";
-    public static final String QUESTIONS_PATH = "QA1.md";
+    //    public static final String QUESTIONS_PATH = "QA1.md";
+    public static final String QUESTIONS_PATH = "test.md";
 
     public void refresh(int slotId) {
         // 1. 新顺序
@@ -23,7 +28,9 @@ public class SlotPointerHolder {
         for (int i = 1; i <= questions.size(); i++) {
             cur.add(String.valueOf(i));
         }
-        Collections.shuffle(cur);
+        if (isShuffled) {
+            Collections.shuffle(cur);
+        }
         // 2. 重置slot
         SlotPointer sp = new SlotPointer();
         sp.setCurList(cur);
@@ -32,10 +39,18 @@ public class SlotPointerHolder {
         marks.set(slotId, new ArrayList<>());
     }
 
+    public ProcessResp getProc(int slotId) {
+        ProcessResp res = new ProcessResp();
+        res.setCur(slotPointers.get(slotId).getCur());
+        res.setTotal(slotPointers.get(slotId).getCurList().size());
+        return res;
+    }
+
     @Data
     static class SlotPointer {
 
         private int cur;
+
         private List<String> curList = new ArrayList<>();
 
         public String get() {
@@ -51,12 +66,15 @@ public class SlotPointerHolder {
             return t;
         }
 
+
     }
 
     private static List<SlotPointer> slotPointers = new ArrayList<>(SLOTS_NUM);
 
     private static List<List<String>> marks = new ArrayList<>(SLOTS_NUM);
+
     private static List<Question> questions = new ArrayList<>();
+
     // 初始化问题
     static {
 //        // 模拟
@@ -66,8 +84,8 @@ public class SlotPointerHolder {
 //        }
         questions = MarkdownUtils.getQuestionsFromMarkdown(FileUtil.readFileStr(QUESTIONS_PATH));
     }
-
     // 初始化指针
+
     static {
         for (int i = 0; i < SLOTS_NUM; i++) {
             SlotPointer sp = new SlotPointer();
@@ -80,13 +98,13 @@ public class SlotPointerHolder {
             }
         }
     }
-
     // 初始化标记
+
     static {
         for (int i = 0; i < SLOTS_NUM; i++) {
             marks.add(new ArrayList<>());
             String t = FileUtil.readFileStr("mark" + i);
-            if(Strings.isNotBlank(t)){
+            if (Strings.isNotBlank(t)) {
                 String[] ss = t.split(",");
                 if (ss.length != 0) {
                     marks.set(i, List.of(ss));
@@ -98,6 +116,11 @@ public class SlotPointerHolder {
     public Question getSlotNext(int slotId) {
         String qId = slotPointers.get(slotId).getAndIncrement();
         return questions.get(Integer.parseInt(qId));
+    }
+
+    public Question getSlotCur(int slotId) {
+        String qId = slotPointers.get(slotId).get();
+        return questions.get(Integer.parseInt(qId)-1);
     }
 
     public SlotPointer getSlotPointer(int slotId) {
@@ -112,7 +135,7 @@ public class SlotPointerHolder {
         SlotPointer sp = slotPointers.get(slotId);
         int cur = sp.getCur();
         // 1. 当前存在
-        if (cur < sp.curList.size()) {
+        if (cur < sp.curList.size() - 1) {
             return new CheckNextQuestionRes("有剩余问题", true);
         }
         // 2. 当前不存在
@@ -124,7 +147,9 @@ public class SlotPointerHolder {
         // 2.2 marks存在, marks替换
         slotPointers.get(slotId).setCur(0);
         // mks随机化
-        Collections.shuffle(mks);
+        if (isShuffled) {
+            Collections.shuffle(mks);
+        }
         slotPointers.get(slotId).setCurList(mks);
         // 清空marks
         marks.set(slotId, new ArrayList<>());
