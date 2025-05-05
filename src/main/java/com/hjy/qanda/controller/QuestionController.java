@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/question")
@@ -24,6 +25,11 @@ public class QuestionController {
 
     @Autowired
     private QuestionService questionService;
+
+    @GetMapping("/list")
+    public List<String> getQuestionsList() {
+        return List.of("十大知识域", "管理概论", "配置变更", "绩效域","信息");
+    }
 
     // GET /api/v1/question/{slotId}/next/check
     @GetMapping("/{slotId}/check")

@@ -11,18 +11,20 @@ import java.util.List;
 
 @Slf4j
 public class FileUtil {
-
-    public static String readFileStr(String filePath){
-        Path path = Path.of(filePath);
+    public static String readFileStr(Path path){
         if(Files.notExists(path)){
             return "";
         }
         try {
             return Files.readString(path);
         } catch (IOException e) {
-            log.info("读取文件{}失败", filePath);
+            log.info("读取文件{}失败", path);
             throw new RuntimeException(e);
         }
+    }
+    public static String readFileStr(String filePath){
+        return readFileStr(Path.of(filePath));
+
     }
 
     public static List<String> readFileStrLines(String filePath){

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -26,7 +27,7 @@ public class FileService {
     public String fetchFile(String fileName) {
         switch (prop.getType()) {
             case remote -> {
-                Response rsp = objectClient.getFile("QA.md");
+                Response rsp = objectClient.getFile(fileName);
                 try (InputStream is = rsp.body().asInputStream()) {
                     byte[] bytes = IOUtils.toByteArray(is);
                     return new String(bytes);
@@ -35,7 +36,7 @@ public class FileService {
                 }
             }
             case local -> {
-                return FileUtil.readFileStr(prop.getName());
+                return FileUtil.readFileStr(Paths.get(prop.getPathPrefix(), fileName));
             }
             default -> {
                 return "";

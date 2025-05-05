@@ -19,7 +19,7 @@ public class QuestionsFileProp {
     @Value("${qanda.file.type:local}")
     private FileType type;
 
-    @Value("${qanda.file.name:QA.md}")
-    private String name;
+    @Value("${qanda.file.path.prefix:QA.md}")
+    private String pathPrefix;
 
 }

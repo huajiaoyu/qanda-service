@@ -16,15 +16,15 @@ public class QuestionService {
     private SlotPointerHolder slotPointerHolder;
 
     public Question getNext(String slotId) {
-        return slotPointerHolder.getSlotNext(Integer.parseInt("0"));
+        return slotPointerHolder.getSlotNext(Integer.parseInt(slotId));
     }
 
     public Question getCur(String slotId) {
-        return slotPointerHolder.getSlotCur(Integer.parseInt("0"));
+        return slotPointerHolder.getSlotCur(Integer.parseInt(slotId));
     }
 
     public void markQuestion(String slotId, String qId) {
-        slotPointerHolder.mark(Integer.parseInt("0"), qId);
+        slotPointerHolder.mark(Integer.parseInt(slotId), qId);
     }
 
     public CheckNextQuestionRes check(String slotId) {
