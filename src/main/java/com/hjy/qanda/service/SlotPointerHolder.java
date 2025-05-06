@@ -26,7 +26,7 @@ public class SlotPointerHolder {
     public static final Integer SLOTS_NUM = 5;
 
     public static final String PTR_PATH_PREFIX = "ptr";
-        public static final String QUESTIONS_PATH = "QA1.md";
+    public static final String QUESTIONS_PATH = "QA1.md";
 //    public static final String QUESTIONS_PATH = "test.md";
 
     public void refresh(int slotId) {
@@ -48,7 +48,7 @@ public class SlotPointerHolder {
 
     public ProcessResp getProc(int slotId) {
         ProcessResp res = new ProcessResp();
-        res.setCur(slotPointers.get(slotId).getCur());
+        res.setCur(slotPointers.get(slotId).getCur() + 1);
         res.setTotal(slotPointers.get(slotId).getCurList().size());
         return res;
     }
@@ -118,29 +118,29 @@ public class SlotPointerHolder {
         }
     }
 
-    public void setQuestions(int slotId, String s){
+    public void setQuestions(int slotId, String s) {
         questions.set(slotId, MarkdownUtils.getQuestionsFromMarkdown(s));
     }
 
     public Question getSlotNext(int slotId) {
         String qId = slotPointers.get(slotId).getAndIncrement();
-        return questions.get(slotId).get(Integer.parseInt(qId));
+        return null;
     }
 
     public Question getSlotCur(int slotId) {
         String qId = slotPointers.get(slotId).get();
-        return questions.get(slotId).get(Integer.parseInt(qId)-1);
+        return questions.get(slotId).get(Integer.parseInt(qId) - 1);
     }
 
     public SlotPointer getSlotPointer(int slotId) {
         return slotPointers.get(slotId);
     }
 
-    public List<String> getMarks(int slotId){
+    public List<String> getMarks(int slotId) {
         return marks.get(slotId);
     }
 
-    public List<Question> getQuestions(int slotId){
+    public List<Question> getQuestions(int slotId) {
         return questions.get(slotId);
     }
 
@@ -152,7 +152,7 @@ public class SlotPointerHolder {
         SlotPointer sp = slotPointers.get(slotId);
         int cur = sp.getCur();
         // 1. 当前存在
-        if (cur < sp.curList.size() - 1) {
+        if (!sp.curList.isEmpty() && cur < sp.curList.size()) {
             return new CheckNextQuestionRes("有剩余问题", true);
         }
         // 2. 当前不存在
