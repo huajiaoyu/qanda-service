@@ -23,7 +23,7 @@ public class SlotPointerHolder {
     @Value("${qanda.questions.shuffle:true}")
     public boolean isShuffled;
 
-    public static final Integer SLOTS_NUM = 5;
+    public static final Integer SLOTS_NUM = 6;
 
     public static final String PTR_PATH_PREFIX = "ptr";
     public static final String QUESTIONS_PATH = "QA1.md";
