@@ -28,7 +28,7 @@ public class QuestionController {
 
     @GetMapping("/list")
     public List<String> getQuestionsList() {
-        return List.of("十大知识域", "管理概论", "配置变更", "绩效域","信息");
+        return List.of("十大知识域", "十大知识域-s","管理概论", "配置变更", "绩效域","信息");
     }
 
     // GET /api/v1/question/{slotId}/next/check
